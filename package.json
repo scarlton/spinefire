@@ -1,0 +1,16 @@
+{
+  "name": "spinefire",
+  "description": "Firebase extensions for SpineJS",
+  "repository": "https://github.com/scarlton/spinefire",
+  "dependencies": {
+    "spine": "1.3.x",
+    "firebase": "2.0.x"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.8.0",
+    "gulp": "^3.5.5",
+    "gulp-coffee": "~2.1.1",
+    "gulp-changed": "~0.4.0",
+    "gulp-util": "~2.2.20"
+  }
+}
