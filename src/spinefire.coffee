@@ -2,18 +2,8 @@ Spine = @Spine or require('spine')
 Firebase = @Firebase or require('firebase')
 
 
-class FirebaseCollection
+class Collection
   constructor: (@model) ->
-    collection = @model.className.toLowerCase() + 's'
-
-    if typeof @model.url is 'function'
-      firebaseRef = [@model.url(), collection].join('/')
-    else
-      firebaseRef = [@model.url, collection].join('/')
-
-    @firebase = new Firebase(firebaseRef)
-
-    @firebase.on('value', @_setLocal)
 
   _setLocal: (snapshot) =>
     snapshot = snapshot.val()
@@ -24,10 +14,48 @@ class FirebaseCollection
 
     @model.refresh(records)
 
+class Singleton
+  constructor: (@record) ->
+    @model = @record.constructor
+
+  reload: ->
+
+  create: ->
+
+  update: (options) ->
+    @model.firebase.child(@record.id).update(todo: @record.todo)
+
+  destroy: ->
+
+
+Extend =
+  collection: -> new Collection(this)
+
+  generateFirebaseRef: ->
+    collection = @className.toLowerCase() + 's'
+
+    if typeof @url is 'function'
+      [@url(), collection].join('/')
+    else
+      [@url, collection].join('/')
+
+Include =
+  singleton: -> new Singleton(this)
 
 Spine.Model.Firebase =
   extended: ->
     @fetch @firebaseFetch
+    @change @firebaseChange
+    @extend Extend
+    @include Include
 
   firebaseFetch: ->
-    new FirebaseCollection(@)
+    coll = @collection()
+
+    unless @firebase?
+      @firebase = new Firebase(@generateFirebaseRef())
+
+      @firebase.on('value', coll._setLocal)
+
+  firebaseChange: (record, type, options={}) ->
+    record.singleton()[type]?(options)
